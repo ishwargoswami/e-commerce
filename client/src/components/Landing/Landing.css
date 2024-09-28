@@ -9,7 +9,7 @@
     align-items: center;
     flex-direction: row;
     flex-wrap: wrap-reverse;
-    background-color: #ffe26e;
+    background-color: #606c38;
     position: relative;
 }
 
@@ -30,6 +30,10 @@
     flex-direction: column;
 }
 
+.landing__header__main, .landing__header__discount{
+    color: #fefae0;
+}
+
 .landing__header {
     height: 100%;
     width: 90%;
@@ -40,7 +44,7 @@
 }
 
 .landing__header__main {
-    font-size: 4.0rem;
+    font-size: 3.8rem;
     font-weight: 800;
 }
 
@@ -56,7 +60,6 @@
 
 .landing__image__container {
     width: 50%;
-    height: ;
     display: flex;
     justify-content: center;
     align-items: center;
