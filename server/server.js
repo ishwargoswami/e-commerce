@@ -20,7 +20,7 @@ connectDB();
 // Define routes
 app.use('/api/items', require("./routes/items"));
 app.use('/api/payment', require("./routes/payment"));
-app.use('/api/users', require("./routes/user")); // New user route
+app.use('/api/user', require("./routes/user")); // New user route
 
 // Start the server
 app.listen(PORT, () => {

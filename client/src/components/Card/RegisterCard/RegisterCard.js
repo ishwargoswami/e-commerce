@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './RegisterCard.css';
-import axios from 'axios';  // Axios for API requests
+import axios from 'axios';
 
 const RegisterCard = () => {
-    // State to store form data
+    // State for form data
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         email: '',
         password: '',
     });
+
+    // State for error handling
+    const [error, setError] = useState('');
 
     // To handle navigation after successful registration
     const navigate = useNavigate();
@@ -23,19 +26,42 @@ const RegisterCard = () => {
         });
     };
 
+    // Form validation function (optional)
+    const validateForm = () => {
+        const { firstName, lastName, email, password } = formData;
+        if (!firstName || !lastName || !email || !password) {
+            setError('All fields are required');
+            return false;
+        }
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters');
+            return false;
+        }
+        setError('');
+        return true;
+    };
+
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!validateForm()) return;
+
         try {
             // Send form data to backend API
-            const response = await axios.post('http://localhost:5000/user', formData);
+            const response = await axios.post('http://localhost:5000/api/auth/signup', formData);
 
             if (response.status === 201) {
                 // Redirect to home page on success
                 navigate('/');
             }
         } catch (error) {
-            console.error('Error registering user:', error);
+            // Handle error response
+            if (error.response && error.response.data) {
+                setError(error.response.data.message);
+            } else {
+                setError('Error registering user');
+            }
         }
     };
 
@@ -45,6 +71,7 @@ const RegisterCard = () => {
                 <div className="register__header">
                     <h1>Create Account</h1>
                 </div>
+                {error && <div className="error-message">{error}</div>} {/* Show error message */}
                 <form onSubmit={handleSubmit}>
                     <div className="register__inputs">
                         <div className="fname__input__container reg__input__container">
@@ -90,6 +117,7 @@ const RegisterCard = () => {
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
+                                minLength={6}  // Optional: client-side password length check
                             />
                         </div>
                         <div className="register__button__container">

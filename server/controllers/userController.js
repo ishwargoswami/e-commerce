@@ -1,60 +1,75 @@
-const User = require('../models/userModel');  // Assuming you have a Mongoose User model
+const bcrypt = require('bcryptjs');
+const User = require('../models/userModel');  // Make sure the User model is correct
 
-// Get all users
-exports.getUsers = async (req, res) => {
+/* POST Request handler for User Sign-Up */
+const signUp = async (req, res) => {
     try {
-        const users = await User.find();
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(500).json({ message: 'Server error', error });
-    }
-};
+        const { firstName,lastName, email, password } = req.body;
 
-// Add a new user
-exports.addUser = async (req, res) => {
-    try {
-        const { username, email, password } = req.body;
+        // Validate that all fields are provided
+        if (!firstName || !lastName || !email || !password) {
+            return res.status(400).json({ message: 'Username, email, and password are required' });
+        }
 
-        // Optional: handle profile photo upload
-        const profilePhoto = req.files ? req.files[0].path : null;
+        // Check if the user already exists by email or username
+        const existingUser = await User.findOne({ $or: [{ email }] });
+        if (existingUser) {
+            return res.status(400).json({ message: 'email already exists' });
+        }
+
+        // Hash the password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
         // Create a new user
         const newUser = new User({
-            username,
+            firstName,
+            lastName,
             email,
-            password_hash: password,  // Password should be hashed
-            profile_picture_url: profilePhoto,
+            password_hash: hashedPassword,
         });
 
+        // Save the user to the database
         await newUser.save();
-        res.status(201).json({ message: 'User created successfully', user: newUser });
+
+        res.status(201).json({ message: 'User created successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error adding user', error });
+        if (error.code === 11000) {
+            return res.status(400).json({ message: 'Duplicate field value', error });
+        }
+        res.status(500).json({ message: 'Error creating user', error });
     }
 };
 
-// Update user by ID
-exports.updateUser = async (req, res) => {
+/* POST Request handler for User Login */
+const login = async (req, res) => {
     try {
-        const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedUser) {
-            return res.status(404).json({ message: 'User not found' });
+        const { email, password } = req.body;
+
+        // Validate that both email and password are provided
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
         }
-        res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+
+        // Check if the user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        // Compare the provided password with the hashed password
+        const isMatch = await bcrypt.compare(password, user.password_hash);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        // // Generate JWT token (uncomment if using JWT)
+        // const token = jwt.sign({ userId: user._id }, 'your_jwt_secret_key', { expiresIn: '1h' });
+
+        res.status(200).json({ message: 'Login successful' });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating user', error });
+        res.status(500).json({ message: 'Error logging in', error });
     }
 };
 
-// Delete user by ID
-exports.deleteUser = async (req, res) => {
-    try {
-        const deletedUser = await User.findByIdAndDelete(req.params.id);
-        if (!deletedUser) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.status(200).json({ message: 'User deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting user', error });
-    }
-};
+module.exports = { signUp, login };
