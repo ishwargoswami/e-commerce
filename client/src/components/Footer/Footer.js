@@ -7,6 +7,7 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import PinterestIcon from '@mui/icons-material/Pinterest';
+import { colors } from '@mui/material';
 
 const Footer = () => {
     return ( 
@@ -17,7 +18,7 @@ const Footer = () => {
                         <div className="footer__help__header">
                             <h1>Help</h1>
                         </div>
-                        <ul className="fotter__help__links">
+                        <ul className="footer__help__links">
                             <li className="help__link">
                                 <a href="/"> Shipping</a>
                             </li>

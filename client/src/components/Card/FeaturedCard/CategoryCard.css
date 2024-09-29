@@ -30,8 +30,9 @@
 
 .category__image > img{
     max-width: 100%;
-    height: auto;
+    height: 100%;
     transition: 1s;
+    object-fit: fill;
 }
 
 .category__card__detail {

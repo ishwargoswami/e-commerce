@@ -10,10 +10,12 @@ a:hover {
 .nav__bottom__container a {
     text-decoration: none;
     color: rgb(3, 3, 3);
-    width: 80px;
+    width: 115px;
     display: flex;
     justify-content: center;
     align-items: center;
+    text-transform: uppercase;
+    font-weight: bold;
 }
 
 .nav__bottom__container a:hover {
