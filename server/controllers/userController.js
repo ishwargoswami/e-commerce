@@ -1,20 +1,20 @@
 const bcrypt = require('bcryptjs');
-const User = require('../models/userModel');  // Make sure the User model is correct
+const User = require('../models/userModel');  // Ensure User model path is correct
 
 /* POST Request handler for User Sign-Up */
 const signUp = async (req, res) => {
     try {
-        const { firstName,lastName, email, password } = req.body;
+        const { firstName, lastName, email, password } = req.body;
 
         // Validate that all fields are provided
         if (!firstName || !lastName || !email || !password) {
-            return res.status(400).json({ message: 'Username, email, and password are required' });
+            return res.status(400).json({ message: 'All fields are required: first name, last name, email, and password' });
         }
 
-        // Check if the user already exists by email or username
-        const existingUser = await User.findOne({ $or: [{ email }] });
+        // Check if the user already exists by email
+        const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'email already exists' });
+            return res.status(400).json({ message: 'Email already exists' });
         }
 
         // Hash the password
@@ -34,6 +34,7 @@ const signUp = async (req, res) => {
 
         res.status(201).json({ message: 'User created successfully' });
     } catch (error) {
+        // Handle unique field errors (MongoDB)
         if (error.code === 11000) {
             return res.status(400).json({ message: 'Duplicate field value', error });
         }
@@ -63,7 +64,7 @@ const login = async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        // // Generate JWT token (uncomment if using JWT)
+        // Optionally generate a JWT token or create a session
         // const token = jwt.sign({ userId: user._id }, 'your_jwt_secret_key', { expiresIn: '1h' });
 
         res.status(200).json({ message: 'Login successful' });

@@ -1,7 +1,7 @@
 {
-  "name": "Shema Server",
+  "name": "kalakriti Server",
   "version": "1.0.0",
-  "description": "Test Server for SHEMA",
+  "description": "Test Server for kalakriti",
   "proxy": "http://localhost:3000/1 ",
   "main": "server.js",
   "scripts": {
