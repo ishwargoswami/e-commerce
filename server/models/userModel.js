@@ -12,13 +12,18 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true,   // Keep email unique
+        unique: true, // Ensures email is unique
     },
     password_hash: {
         type: String,
         required: true,
-    }
-});
+    },
+    userName: {
+        type: String,
+        required: true, // Make sure this field is required
+        unique: true, // Ensure userName is also unique
+    },
+}, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
 

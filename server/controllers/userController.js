@@ -4,43 +4,53 @@ const User = require('../models/userModel');  // Ensure User model path is corre
 /* POST Request handler for User Sign-Up */
 const signUp = async (req, res) => {
     try {
-        const { firstName, lastName, email, password } = req.body;
+        console.log('Received sign-up request body:', req.body); // Log the whole request body
 
-        // Validate that all fields are provided
-        if (!firstName || !lastName || !email || !password) {
-            return res.status(400).json({ message: 'All fields are required: first name, last name, email, and password' });
+        const { firstName, lastName, email, password, username } = req.body;
+
+        // Validate all fields are provided
+        if (!firstName || !lastName || !email || !password || !username) {
+            return res.status(400).json({ message: 'All fields are required: first name, last name, email, password, and username' });
         }
 
-        // Check if the user already exists by email
+        // Convert username to lowercase for uniqueness
+        const usernameLower = username.toLowerCase();
+
+        // Check for existing user by email and username
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'Email already exists' });
         }
 
-        // Hash the password
+        const existingUsername = await User.findOne({ username: usernameLower });
+        if (existingUsername) {
+            return res.status(400).json({ message: 'Username already exists' });
+        }
+
+        // Hash the password and create a new user
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create a new user
         const newUser = new User({
             firstName,
             lastName,
             email,
             password_hash: hashedPassword,
+            username: usernameLower,
         });
 
-        // Save the user to the database
         await newUser.save();
 
-        res.status(201).json({ message: 'User created successfully' });
+        res.status(201).json({ message: 'User created successfully', user: newUser });
     } catch (error) {
-        // Handle unique field errors (MongoDB)
+        console.error('Error creating user:', error);
         if (error.code === 11000) {
             return res.status(400).json({ message: 'Duplicate field value', error });
         }
         res.status(500).json({ message: 'Error creating user', error });
     }
 };
+
 
 /* POST Request handler for User Login */
 const login = async (req, res) => {
@@ -69,6 +79,7 @@ const login = async (req, res) => {
 
         res.status(200).json({ message: 'Login successful' });
     } catch (error) {
+        console.error('Error logging in:', error);
         res.status(500).json({ message: 'Error logging in', error });
     }
 };
